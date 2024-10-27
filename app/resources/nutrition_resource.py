@@ -19,6 +19,34 @@ class NutritionResource:
             conn.close()
 
     @staticmethod
+    def get_nutrition_list(offset=0, limit=10, min_calories=None, max_calories=None, diet_type=None):
+      conn = ServiceFactory.get_connection()
+      cursor = conn.cursor(dictionary=True)
+      try:
+        query = "SELECT * FROM nutrition WHERE 1=1"
+        params = []
+
+        if min_calories is not None:
+          query += " AND calories >= %s"
+          params.append(min_calories)
+        if max_calories is not None:
+          query += " AND calories <= %s"
+          params.append(max_calories)
+        if diet_type is not None:
+          query += " AND diet_type = %s"
+          params.append(diet_type)
+
+        query += " LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
+
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+        return result
+      finally:
+        cursor.close()
+        conn.close()
+
+    @staticmethod
     def create_nutrition(nutrition: Nutrition):
         conn = ServiceFactory.get_connection()
         cursor = conn.cursor()

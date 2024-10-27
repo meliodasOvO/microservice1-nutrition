@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from app.models.nutrition import Nutrition
 from app.resources.nutrition_resource import NutritionResource
+from typing import Optional, List
 
 router = APIRouter()
 
@@ -10,6 +11,26 @@ async def get_nutrition_info(recipe_id: int):
     if not result:
         raise HTTPException(status_code=404, detail="Nutrition information not found")
     return result
+
+@router.get("/nutrition", tags=["nutrition"])
+async def get_nutrition_list(
+    page: int = Query(1, ge=1),
+    min_calories: Optional[float] = None,
+    max_calories: Optional[float] = None,
+    diet_type: Optional[str] = None
+):
+    # 计算 offset 和 limit
+    page_size = 2
+    offset = (page - 1) * page_size
+    nutrition_list = NutritionResource.get_nutrition_list(
+        offset=offset,
+        limit=page_size,
+        min_calories=min_calories,
+        max_calories=max_calories,
+        diet_type=diet_type
+    )
+    return nutrition_list
+
 
 @router.post("/nutrition", tags=["nutrition"], status_code=status.HTTP_201_CREATED)
 async def create_nutrition_info(nutrition: Nutrition):
