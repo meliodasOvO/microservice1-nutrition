@@ -113,5 +113,3 @@ class NutritionResource:
             cursor.close()
             conn.close()
         return {"detail": "Nutrition information deleted successfully"}
-
-#test
