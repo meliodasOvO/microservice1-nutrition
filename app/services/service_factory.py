@@ -5,8 +5,8 @@ import mysql.connector
 # 数据库配置
 config = {
     'user': 'root',
-    'password': 'lisijun123',
-    'host': 'localhost',
+    'password': 'dbuserdbuser',
+    'host': '35.196.59.220',
     'database': 'nutrition_db'
 }
 
