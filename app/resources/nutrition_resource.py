@@ -19,7 +19,7 @@ class NutritionResource:
             conn.close()
 
     @staticmethod
-    def get_nutrition_list(offset=0, limit=10, min_calories=None, max_calories=None, diet_type=None, goal=None):
+    def get_nutrition_suggestions(offset=0, limit=10, min_calories=None, max_calories=None, diet_type=None, goal=None):
       conn = ServiceFactory.get_connection()
       cursor = conn.cursor(dictionary=True)
       try:

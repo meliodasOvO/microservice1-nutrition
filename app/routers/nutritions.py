@@ -13,7 +13,7 @@ async def get_nutrition_info(recipe_id: int):
     return result
 
 @router.get("/nutrition", tags=["nutrition"])
-async def get_nutrition_list(
+async def get_nutrition_suggestions(
     page: int = Query(1, ge=1),
     min_calories: Optional[float] = None,
     max_calories: Optional[float] = None,
@@ -23,7 +23,7 @@ async def get_nutrition_list(
     # 计算 offset 和 limit
     page_size = 2
     offset = (page - 1) * page_size
-    nutrition_list = NutritionResource.get_nutrition_list(
+    nutrition_list = NutritionResource.get_nutrition_suggestions(
         offset=offset,
         limit=page_size,
         min_calories=min_calories,
