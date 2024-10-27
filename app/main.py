@@ -2,17 +2,12 @@ from fastapi import Depends, FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import nutritions
-
+from app.routers.nutritions import router as nutrition_router
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=['*']
-)
 
 
-app.include_router(nutritions.router)
+app.include_router(nutrition_router, prefix="/api")
 
 
 @app.get("/")

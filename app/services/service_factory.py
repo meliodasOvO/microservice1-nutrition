@@ -1,31 +1,17 @@
+# service_factory.py
 from framework.services.service_factory import BaseServiceFactory
-import app.resources.nutrition_resource as nutrition_resource
-from framework.services.data_access.MySQLRDBDataService import MySQLRDBDataService
+import mysql.connector
 
+# 数据库配置
+config = {
+    'user': 'root',
+    'password': 'lisijun123',
+    'host': 'localhost',
+    'database': 'nutrition_db'
+}
 
-# TODO -- Implement this class
 class ServiceFactory(BaseServiceFactory):
-
-    def __init__(self):
-        super().__init__()
-
     @classmethod
-    def get_service(cls, service_name):
-        #
-        # TODO -- The terrible, hardcoding and hacking continues.
-        #
-        if service_name == 'NutritionResource':
-            result = nutrition_resource.NutritionResource(config=None)
-        elif service_name == 'NutritionResourceDataService':
-            context = dict(user="root", password="lisijun123",
-                           host="localhost", port=3306)
-            data_service = MySQLRDBDataService(context=context)
-            result = data_service
-        else:
-            result = None
-
-        return result
-
-
-
-
+    def get_connection(cls):
+        # 提供数据库连接
+        return mysql.connector.connect(**config)

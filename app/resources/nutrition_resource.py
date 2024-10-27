@@ -1,43 +1,82 @@
-from typing import Any
-
-from framework.resources.base_resource import BaseResource
-
-from app.models.nutrition import NutritionInfo
+# nutrition_resource.py
+from app.models.nutrition import Nutrition
+from fastapi import HTTPException
 from app.services.service_factory import ServiceFactory
 
+class NutritionResource:
+    @staticmethod
+    def get_nutrition(recipe_id: int):
+        conn = ServiceFactory.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            cursor.execute("SELECT * FROM nutrition WHERE recipe_id = %s", (recipe_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise HTTPException(status_code=404, detail="Nutrition information not found")
+            return result
+        finally:
+            cursor.close()
+            conn.close()
 
-class NutritionResource(BaseResource):
+    @staticmethod
+    def create_nutrition(nutrition: Nutrition):
+        conn = ServiceFactory.get_connection()
+        cursor = conn.cursor()
+        try:
+            query = """
+                INSERT INTO nutrition (recipe_id, calories, carbohydrates, fiber, fat, sugar, sodium, ingredient_alternatives)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (
+                nutrition.recipe_id, nutrition.calories, nutrition.carbohydrates,
+                nutrition.fiber, nutrition.fat, nutrition.sugar,
+                nutrition.sodium, nutrition.ingredient_alternatives
+            ))
+            conn.commit()
+            nutrition_id = cursor.lastrowid
+        finally:
+            cursor.close()
+            conn.close()
+        return nutrition
 
-    def __init__(self, config):
-        super().__init__(config)
+    @staticmethod
+    def update_nutrition(recipe_id: int, nutrition: Nutrition):
+        conn = ServiceFactory.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT * FROM nutrition WHERE recipe_id = %s", (recipe_id,))
+            if not cursor.fetchone():
+                raise HTTPException(status_code=404, detail="Nutrition information not found")
 
-        # TODO -- Replace with dependency injection.
-        #
-        self.data_service = ServiceFactory.get_service("NutritionResourceDataService")
-        self.database = "testnu"
-        self.nutrition_info = "nutrition_info"
-        self.key_field="name"
+            query = """
+                UPDATE nutrition
+                SET calories = %s, carbohydrates = %s, fiber = %s, fat = %s,
+                    sugar = %s, sodium = %s, ingredient_alternatives = %s
+                WHERE recipe_id = %s
+            """
+            cursor.execute(query, (
+                nutrition.calories, nutrition.carbohydrates, nutrition.fiber,
+                nutrition.fat, nutrition.sugar, nutrition.sodium,
+                nutrition.ingredient_alternatives, recipe_id
+            ))
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+        return nutrition
 
-    def get_by_key(self, key: str) -> NutritionInfo:
+    @staticmethod
+    def delete_nutrition(recipe_id: int):
+        conn = ServiceFactory.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT * FROM nutrition WHERE recipe_id = %s", (recipe_id,))
+            if not cursor.fetchone():
+                raise HTTPException(status_code=404, detail="Nutrition information not found")
 
-        d_service = self.data_service
-
-        result = d_service.get_data_object(
-            self.database, self.nutrition_info, key_field=self.key_field, key_value=key
-        )
-
-        result = NutritionInfo(**result)
-        return result
-
-    def update_by_key(self, key: str, data: dict) -> NutritionInfo:
-      d_service = self.data_service
-      d_service.update_data(
-        self.database, self.nutrition_info, data, key_field=self.key_field, key_value=key
-      )
-      return self.get_by_key(key)
-
-    def delete_by_key(self, key: str) -> None:
-      d_service = self.data_service
-      d_service.delete_data(
-        self.database, self.nutrition_info, key_field=self.key_field, key_value=key
-      )
+            cursor.execute("DELETE FROM nutrition WHERE recipe_id = %s", (recipe_id,))
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+        return {"detail": "Nutrition information deleted successfully"}
