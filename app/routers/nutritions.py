@@ -17,7 +17,8 @@ async def get_nutrition_list(
     page: int = Query(1, ge=1),
     min_calories: Optional[float] = None,
     max_calories: Optional[float] = None,
-    diet_type: Optional[str] = None
+    diet_type: Optional[str] = None,
+    goal: Optional[str] = None
 ):
     # 计算 offset 和 limit
     page_size = 2
@@ -27,7 +28,8 @@ async def get_nutrition_list(
         limit=page_size,
         min_calories=min_calories,
         max_calories=max_calories,
-        diet_type=diet_type
+        diet_type=diet_type,
+        goal=goal
     )
     return nutrition_list
 

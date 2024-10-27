@@ -19,7 +19,7 @@ class NutritionResource:
             conn.close()
 
     @staticmethod
-    def get_nutrition_list(offset=0, limit=10, min_calories=None, max_calories=None, diet_type=None):
+    def get_nutrition_list(offset=0, limit=10, min_calories=None, max_calories=None, diet_type=None, goal=None):
       conn = ServiceFactory.get_connection()
       cursor = conn.cursor(dictionary=True)
       try:
@@ -35,6 +35,9 @@ class NutritionResource:
         if diet_type is not None:
           query += " AND diet_type = %s"
           params.append(diet_type)
+        if goal is not None:
+          query += " AND goal = %s"
+          params.append(goal)
 
         query += " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
