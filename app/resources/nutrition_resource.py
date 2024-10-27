@@ -24,20 +24,22 @@ class NutritionResource:
         cursor = conn.cursor()
         try:
             query = """
-                INSERT INTO nutrition (recipe_id, calories, carbohydrates, fiber, fat, sugar, sodium, ingredient_alternatives)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO nutrition (recipe_id, calories, carbohydrates, protein, fiber, fat, sugar, sodium,
+                                       ingredient_alternatives, diet_type, goal)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query, (
-                nutrition.recipe_id, nutrition.calories, nutrition.carbohydrates,
-                nutrition.fiber, nutrition.fat, nutrition.sugar,
-                nutrition.sodium, nutrition.ingredient_alternatives
+                nutrition.recipe_id, nutrition.calories, nutrition.carbohydrates, nutrition.protein,
+                nutrition.fiber, nutrition.fat, nutrition.sugar, nutrition.sodium,
+                nutrition.ingredient_alternatives, nutrition.diet_type, nutrition.goal
             ))
             conn.commit()
             nutrition_id = cursor.lastrowid
         finally:
             cursor.close()
             conn.close()
-        return nutrition
+        # 返回包含生成的 nutrition_id 的对象
+        return {**nutrition.dict(), "nutrition_id": nutrition_id}
 
     @staticmethod
     def update_nutrition(recipe_id: int, nutrition: Nutrition):
@@ -50,14 +52,14 @@ class NutritionResource:
 
             query = """
                 UPDATE nutrition
-                SET calories = %s, carbohydrates = %s, fiber = %s, fat = %s,
-                    sugar = %s, sodium = %s, ingredient_alternatives = %s
+                SET calories = %s, carbohydrates = %s, protein = %s, fiber = %s, fat = %s,
+                    sugar = %s, sodium = %s, ingredient_alternatives = %s, diet_type = %s, goal = %s
                 WHERE recipe_id = %s
             """
             cursor.execute(query, (
-                nutrition.calories, nutrition.carbohydrates, nutrition.fiber,
+                nutrition.calories, nutrition.carbohydrates, nutrition.protein, nutrition.fiber,
                 nutrition.fat, nutrition.sugar, nutrition.sodium,
-                nutrition.ingredient_alternatives, recipe_id
+                nutrition.ingredient_alternatives, nutrition.diet_type, nutrition.goal, recipe_id
             ))
             conn.commit()
         finally:
@@ -80,3 +82,4 @@ class NutritionResource:
             cursor.close()
             conn.close()
         return {"detail": "Nutrition information deleted successfully"}
+
